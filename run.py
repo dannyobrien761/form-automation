@@ -57,7 +57,7 @@ def get_latest_valid_row(sheet):
     # If no valid row is found, return None
     return None
 
-def calculate_latest_order_cost(pricing_dict):
+def calculate_order_cost(pricing_dict, row):
     """
     Fetches the latest valid row from the 'order-info' sheet, checks if 'cake-type' and 'treat-type' exist
     in the pricing dictionary, validates 'cake-quantity' and 'treat-quantity', and calculates
@@ -65,23 +65,16 @@ def calculate_latest_order_cost(pricing_dict):
     
     Parameters:
         pricing_dict (dict): A dictionary with 'cake-type' or 'treat-type' as keys and their prices as values.
+        row (list): The row data from the sheet.
     
     Returns:
-        float: The total calculated order cost. If no valid data is found, returns 0.
+        float: The total calculated order cost.
     """
-    
-    # Get the latest valid row
-    latest_row = get_latest_valid_row(order_sheet)
+    cake_type = row[4]  # Assuming 'cake-type' is in the 5th column (index 4)
+    cake_quantity = row[5]  # Assuming 'cake quantity' is in the 6th column (index 5)
+    treat_type = row[7]  # Assuming 'treat-type' is in the 8th column (index 7)
+    treat_quantity = row[8]  # Assuming 'treat-quantity' is in the 9th column (index 8)
 
-    if latest_row is None:
-        print("No valid row found. No cost calculation.")
-        return 0  # Return 0 if no valid row is found
-
-    # Extract the relevant columns from the latest valid row
-    cake_type = latest_row[4]  # Assuming 'cake-type' is in the 5th column (index 4)
-    cake_quantity = latest_row[5]  # Assuming 'cake quantity' is in the 6th column (index 5)
-    treat_type = latest_row[7]  # Assuming 'treat-type' is in the 8th column (index 7)
-    treat_quantity = latest_row[8]  # Assuming 'treat-quantity' is in the 9th column (index 8)
 
     order_cost = 0  # Initialize the order cost
 
@@ -103,13 +96,75 @@ def calculate_latest_order_cost(pricing_dict):
 
     return order_cost
 
-# pricing dictionary for cake and treat types
-pricing_dict = {
-    'chocolate-biscuit': 25,
-    'custom': 10,
-    'vanilla-cake': 20,
-    'brownie': 5
-}
 
-latest_order_cost = calculate_latest_order_cost(pricing_dict)
-print(f"The total order cost is: {latest_order_cost}")
+
+
+
+def append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
+    """
+    Appends the latest valid row to the 'customer-info' sheet if it's not a duplicate.
+    
+    Parameters:
+        order_sheet (gspread.Worksheet): The worksheet object for 'order-info'.
+        customer_info_sheet (gspread.Worksheet): The worksheet object for 'customer-info'.
+        pricing_dict (dict): A dictionary with pricing information.
+    """
+    # Get the latest valid row from the 'order-info' sheet
+    latest_row = get_latest_valid_row(order_sheet)
+    
+    if latest_row is None:
+        print("No valid row found. No data to append.")
+        return
+
+    # Extract name, email, and order-date from the latest row
+    name = latest_row[0]  # Assuming 'name' is in the 1st column (index 0)
+    email = latest_row[1]  # Assuming 'email' is in the 2nd column (index 1)
+    order_date = latest_row[2]  # Assuming 'order-date' is in the 3rd column (index 2)
+
+    # Calculate the order cost
+    order_cost = calculate_order_cost(pricing_dict, latest_row)
+
+
+    # Append order_cost to the latest_row
+    latest_row.append(order_cost)  # Add order cost as the last column
+
+    # Check if the combination of email and order_date already exists in the 'customer-info' sheet
+    customer_data = customer_info_sheet.get_all_values()
+    for row in customer_data:
+        if len(row) > 2 and row[1] == email and row[2] == order_date:
+            print(f"Entry with email {email} and order date {order_date} already exists. No duplicate added.")
+            return
+
+    # Append the latest_row to the 'customer-info' sheet
+    customer_info_sheet.append_row([name, email, order_date, order_cost])
+    print(f"Added new entry to customer-info: {name}, {email}, {order_date}, {order_cost}")
+
+    latest_order_cost = calculate_order_cost(pricing_dict, latest_row)
+    print(f"The total order cost is: {latest_order_cost}")
+
+# Example usage
+def main():
+    # Authorize and access the spreadsheet
+    GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
+    SHEET = GSPREAD_CLIENT.open('katescakes-automation')
+
+    # Access the worksheets
+    order_sheet = SHEET.worksheet('order-info')
+    customer_info_sheet = SHEET.worksheet('customer-info')
+
+    # Define pricing dictionary
+    pricing_dict = {
+        'chocolate biscuit': 25,
+        'custom': 10,
+        'vanilla cake': 20,
+        'brownie treat': 5,
+        'delivery_fee': 10  # Delivery fee
+    }
+
+    # Append to customer-info sheet
+    append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
+
+    
+
+if __name__ == "__main__":
+    main()

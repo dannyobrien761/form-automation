@@ -20,9 +20,46 @@ SHEET = GSPREAD_CLIENT.open('katescakes-automation')
 order_sheet = SHEET.worksheet('order-info')
 order_data = order_sheet.get_all_values()
 
+def is_valid_row(row):
+    """
+    Checks if the row contains meaningful data and is not just an empty row.
+    
+    Parameters:
+        row (list): The row data from the sheet.
+    
+    Returns:
+        bool: True if the row contains valid data, False otherwise.
+    """
+    # Check if key fields (e.g., 'cake-type', 'cake-quantity') are non-empty
+    cake_type = row[4].strip()  # Assuming 'cake-type' is in the 5th column (index 4)
+    cake_quantity = row[5].strip()  # Assuming 'cake quantity' is in the 6th column (index 5)
+    
+    return bool(cake_type and cake_quantity) 
+
+def get_latest_valid_row(sheet):
+    """
+    Gets the latest valid row from the 'order-info' sheet that contains valid data.
+    
+    Parameters:
+        sheet (gspread.Worksheet): The worksheet object for 'order-info'.
+    
+    Returns:
+        list: The latest valid row with data, or None if no valid row is found.
+    """
+    # Get all rows from the sheet
+    all_rows = sheet.get_all_values()
+
+    # Iterate from the last row backwards to find the latest valid row
+    for row in reversed(all_rows):
+        if is_valid_row(row):
+            return row  # Return the first valid row found from the bottom up
+    
+    # If no valid row is found, return None
+    return None
+
 def calculate_latest_order_cost(pricing_dict):
     """
-    Fetches the latest row from the 'order-info' sheet, checks if 'cake-type' and 'treat-type' exist
+    Fetches the latest valid row from the 'order-info' sheet, checks if 'cake-type' and 'treat-type' exist
     in the pricing dictionary, validates 'cake-quantity' and 'treat-quantity', and calculates
     the total order cost.
     
@@ -32,12 +69,15 @@ def calculate_latest_order_cost(pricing_dict):
     Returns:
         float: The total calculated order cost. If no valid data is found, returns 0.
     """
+    
+    # Get the latest valid row
+    latest_row = get_latest_valid_row(order_sheet)
 
+    if latest_row is None:
+        print("No valid row found. No cost calculation.")
+        return 0  # Return 0 if no valid row is found
 
-    # Get the latest row from the order-info sheet
-    latest_row = order_sheet.get_all_values()[-1]
-
-    # Extract the relevant columns from the latest row
+    # Extract the relevant columns from the latest valid row
     cake_type = latest_row[4]  # Assuming 'cake-type' is in the 5th column (index 4)
     cake_quantity = latest_row[5]  # Assuming 'cake quantity' is in the 6th column (index 5)
     treat_type = latest_row[7]  # Assuming 'treat-type' is in the 8th column (index 7)
@@ -63,12 +103,12 @@ def calculate_latest_order_cost(pricing_dict):
 
     return order_cost
 
-# Example usage of the function with a pricing dictionary
+# pricing dictionary for cake and treat types
 pricing_dict = {
-    'chocolate biscuit': 25,
+    'chocolate-biscuit': 25,
     'custom': 10,
-    'vanilla cake': 20,
-    'brownie treat': 5
+    'vanilla-cake': 20,
+    'brownie': 5
 }
 
 latest_order_cost = calculate_latest_order_cost(pricing_dict)

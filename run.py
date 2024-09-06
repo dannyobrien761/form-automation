@@ -1,5 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
+from pprint import pprint
 
 
 SCOPE = [
@@ -19,33 +20,56 @@ SHEET = GSPREAD_CLIENT.open('katescakes-automation')
 order_sheet = SHEET.worksheet('order-info')
 order_data = order_sheet.get_all_values()
 
-print(order_data)
-
-# Access the worksheet containing the pricing model
-pricing_sheet = SHEET.worksheet('price-list')
-pricing_data = pricing_sheet.get_all_values()
-
-print(pricing_data)
-
-# Convert the pricing data to a dictionary for easier lookup
-# Assuming the pricing model has 'cake-type' in the first column and price in the second
-pricing_dict = {row[0]: float(row[1]) for row in pricing_data[1:]}  # Skipping header
-
-# Iterate through each row in the order data (skipping header)
-for row in order_data[1:]:
-    cake_type = row[4]  # Assuming 'cake-type' is in the 5th column (index 4)
-    cake_quantity = row[5]  # Assuming 'cake quantity' is in the 6th column (index 5)
+def calculate_latest_order_cost(pricing_dict):
+    """
+    Fetches the latest row from the 'order-info' sheet, checks if 'cake-type' and 'treat-type' exist
+    in the pricing dictionary, validates 'cake-quantity' and 'treat-quantity', and calculates
+    the total order cost.
     
-    # Check if the cake type exists and quantity is valid
-    if cake_type in pricing_dict and cake_quantity:
-        # Convert cake quantity to an integer for calculation
-        cake_quantity = int(cake_quantity)
-        
-        # Calculate the cost for the current row
-        cake_cost = pricing_dict[cake_type] * cake_quantity
-        
-        print(f"Cake Type: {cake_type}, Quantity: {cake_quantity}, Total Cost: €{cake_cost}")
-    else:
-        print(f"Skipping row due to missing or invalid cake type/quantity: {row}")
+    Parameters:
+        pricing_dict (dict): A dictionary with 'cake-type' or 'treat-type' as keys and their prices as values.
+    
+    Returns:
+        float: The total calculated order cost. If no valid data is found, returns 0.
+    """
 
-        
+
+    # Get the latest row from the order-info sheet
+    latest_row = order_sheet.get_all_values()[-1]
+
+    # Extract the relevant columns from the latest row
+    cake_type = latest_row[4]  # Assuming 'cake-type' is in the 5th column (index 4)
+    cake_quantity = latest_row[5]  # Assuming 'cake quantity' is in the 6th column (index 5)
+    treat_type = latest_row[7]  # Assuming 'treat-type' is in the 8th column (index 7)
+    treat_quantity = latest_row[8]  # Assuming 'treat-quantity' is in the 9th column (index 8)
+
+    order_cost = 0  # Initialize the order cost
+
+    # Check if 'cake-type' exists in the pricing dictionary and 'cake-quantity' is valid
+    if cake_type in pricing_dict:
+        try:
+            cake_quantity = int(cake_quantity)  # Convert to integer if valid
+            order_cost += pricing_dict[cake_type] * cake_quantity
+        except ValueError:
+            print(f"Invalid cake quantity for {cake_type}. Skipping cake cost calculation.")
+
+    # Check if 'treat-type' exists in the pricing dictionary and 'treat-quantity' is valid
+    if treat_type in pricing_dict:
+        try:
+            treat_quantity = int(treat_quantity)  # Convert to integer if valid
+            order_cost += pricing_dict[treat_type] * treat_quantity
+        except ValueError:
+            print(f"Invalid treat quantity for {treat_type}. Skipping treat cost calculation.")
+
+    return order_cost
+
+# Example usage of the function with a pricing dictionary
+pricing_dict = {
+    'chocolate biscuit': 25,
+    'custom': 10,
+    'vanilla cake': 20,
+    'brownie treat': 5
+}
+
+latest_order_cost = calculate_latest_order_cost(pricing_dict)
+print(f"The total order cost is: {latest_order_cost}")

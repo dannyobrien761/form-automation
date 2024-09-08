@@ -26,7 +26,7 @@ customer_email_sheet = SHEET.worksheet('customer-info')
 
 
 
-def get_order_data():
+def get_customer_data():
     """
     Get order data (name and email) from the user.
     The data should be a valid name and a valid email address.
@@ -37,25 +37,25 @@ def get_order_data():
         print("Example: John Doe,johndoe@example.com\n")
 
         data_str = input("Enter your data here: ")
-        order_data = data_str.split(",")
+        customer_data = data_str.split(",")
 
-        if validate_order_data(order_data):
+        if validate_order_data(customer_data):
             print("Order data is valid!")
             break
 
-    return order_data
+    return customer_data
 
-def validate_order_data(order_data):
+def validate_order_data(customer_data):
     """
     Validate the order data. The name should not be empty, and the email
     must be in a valid format (e.g., someone@example.com).
     """
-    if len(order_data) != 2:
+    if len(customer_data) != 2:
         print(f"Invalid input. You must provide exactly 2 values (name and email).")
         return False
 
-    name = order_data[0].strip()
-    email = order_data[1].strip()
+    name = customer_data[0].strip()
+    email = customer_data[1].strip()
 
     # Validate name (non-empty)
     if not name:
@@ -104,12 +104,83 @@ def validate_cake_date(date_str):
     return True
 
 
-# Example Usage:
-order_data = get_order_data()  # Get and validate name and email
-cake_date = get_cake_date()    # Get and validate date
 
 
 
+
+
+
+
+def get_cake_type():
+    """
+    Get the cake type selected by the customer.
+    The cake type must be one of the available options.
+    """
+    while True:
+        print("Please choose the cake type from the following options:")
+        print("1. Chocolate Biscuit")
+        print("2. Vanilla Sponge\n")
+
+        cake_type = input("Enter your choice (1 or 2): ")
+
+        if validate_cake_type(cake_type):
+            print("Cake type is valid!")
+            break
+
+    return cake_type
+
+
+def validate_cake_type(cake_type):
+    """
+    Validate the cake type input.
+    It must be '1' for 'Chocolate Biscuit' or '2' for 'Vanilla Sponge'.
+    """
+    valid_options = {"1": "Chocolate Biscuit", "2": "Vanilla Sponge"}
+
+    if cake_type not in valid_options:
+        print("Invalid cake type. Please enter '1' for Chocolate Biscuit or '2' for Vanilla Sponge.")
+        return False
+
+    return True
+
+
+def get_cake_quantity():
+    """
+    Get the cake quantity from the customer.
+    It must be a positive integer greater than zero.
+    """
+    while True:
+        print("Please enter the quantity of cakes:")
+        cake_quantity = input("Enter the cake quantity (must be a number greater than 0): ")
+
+        if validate_cake_quantity(cake_quantity):
+            print("Cake quantity is valid!")
+            break
+
+    return int(cake_quantity)
+
+
+def validate_cake_quantity(cake_quantity):
+    """
+    Validate the cake quantity input.
+    It must be a positive integer greater than zero.
+    """
+    try:
+        quantity = int(cake_quantity)
+        if quantity <= 0:
+            raise ValueError("The quantity must be greater than zero.")
+    except ValueError as e:
+        print(f"Invalid input: {e}")
+        return False
+
+    return True
+
+
+
+
+
+
+# section to handle updating customer-info sheet from order-infor page
 def is_valid_row(row):
     """
     Checks if the row contains meaningful data and is not just an empty row.
@@ -297,6 +368,12 @@ def main():
         'delivery_fee': 10  # Delivery fee
     }
 
+    # Example Usage:
+    customer_data = get_customer_data()  # Get and validate name and email
+    cake_date = get_cake_date()    # Get and validate date
+    # Example Usage:
+    cake_type = get_cake_type()  # Get and validate cake type
+    cake_quantity = get_cake_quantity()  # Get and validate cake quantity
     # Append to customer-info sheet
     append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
 

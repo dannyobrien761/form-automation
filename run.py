@@ -19,6 +19,8 @@ SHEET = GSPREAD_CLIENT.open('katescakes-automation')
 # Access the worksheet containing the order info
 order_sheet = SHEET.worksheet('order-info')
 order_data = order_sheet.get_all_values()
+# Access the worksheet containing customer-info
+customer_email_sheet = SHEET.worksheet('customer-info')
 
 def is_valid_row(row):
     """
@@ -141,6 +143,52 @@ def append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
 
     latest_order_cost = calculate_order_cost(pricing_dict, latest_row)
     print(f"The total order cost is: {latest_order_cost}")
+
+
+def append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
+    """
+    Appends all new entries from the 'order-info' sheet to the 'customer-info' sheet.
+    Only rows that have not yet been added (based on 'email' and 'order-date' combination) will be appended.
+    
+    Parameters:
+        order_sheet (gspread.Worksheet): The worksheet object for 'order-info'.
+        customer_info_sheet (gspread.Worksheet): The worksheet object for 'customer-info'.
+        pricing_dict (dict): A dictionary with pricing information.
+    """
+    # Get all rows from the 'order-info' sheet
+    all_order_rows = order_sheet.get_all_values()
+
+    # Get all rows from the 'customer-info' sheet (to check for duplicates)
+    customer_data = customer_info_sheet.get_all_values()
+    
+    # Extract the email and order-date combinations from customer-info for quick comparison
+    customer_info_combinations = set((row[1], row[2]) for row in customer_data[1:])  # Exclude header
+
+    # Iterate over each row in the 'order-info' sheet
+    for row in all_order_rows[1:]:  # Exclude header
+        # Extract email and order-date
+        email = row[1]  # Assuming 'email' is in the 2nd column (index 1)
+        order_date = row[2]  # Assuming 'order-date' is in the 3rd column (index 2)
+        
+        # Check if the combination of email and order_date already exists in customer-info
+        if (email, order_date) not in customer_info_combinations:
+            # If not a duplicate, calculate the order cost and append the new entry
+            order_cost = calculate_order_cost(pricing_dict, row)
+    
+            
+            # Append order_cost to the row
+            row.append(order_cost)
+
+            # Append name, email, order_date, and order_cost to customer-info
+            customer_info_sheet.append_row([row[0], email, order_date, order_cost])
+            
+            # Update the set with the new combination
+            customer_info_combinations.add((email, order_date))
+
+            print(f"Added new entry: {row[0]}, {email}, {order_date}, {order_cost}")
+        else:
+            print(f"Entry with email {email} and order date {order_date} already exists.")
+
 
 # Example usage
 def main():

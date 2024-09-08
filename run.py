@@ -116,18 +116,24 @@ def get_cake_type():
     Get the cake type selected by the customer.
     The cake type must be one of the available options.
     """
+    cake_options = {
+        "1": "chocolate biscuit",
+        "2": "vanilla cake"
+    }
+
     while True:
         print("Please choose the cake type from the following options:")
         print("1. Chocolate Biscuit")
-        print("2. Vanilla Sponge\n")
+        print("2. Vanilla Cake\n")
 
-        cake_type = input("Enter your choice (1 or 2): ")
+        cake_type_choice = input("Enter your choice (1 or 2): ")
 
-        if validate_cake_type(cake_type):
-            print("Cake type is valid!")
-            break
+        if cake_type_choice in cake_options:
+            print(f"Cake type '{cake_options[cake_type_choice]}' selected!")
+            return cake_options[cake_type_choice]
+        else:
+            print("Invalid cake type. Please enter '1' for Chocolate Biscuit or '2' for Vanilla Cake.")
 
-    return cake_type
 
 
 def validate_cake_type(cake_type):
@@ -254,10 +260,10 @@ def calculate_order_cost(pricing_dict, row):
     Returns:
         float: The total calculated order cost.
     """
-    cake_type = row[4]  # Assuming 'cake-type' is in the 5th column (index 4)
-    cake_quantity = row[5]  # Assuming 'cake quantity' is in the 6th column (index 5)
-    treat_type = row[7]  # Assuming 'treat-type' is in the 8th column (index 7)
-    treat_quantity = row[8]  # Assuming 'treat-quantity' is in the 9th column (index 8)
+    cake_type = row[3]  # Assuming 'cake-type' is in the 5th column (index 4)
+    cake_quantity = row[4]  # Assuming 'cake quantity' is in the 6th column (index 5)
+    treat_type = row[6]  # Assuming 'treat-type' is in the 8th column (index 7)
+    treat_quantity = row[7]  # Assuming 'treat-quantity' is in the 9th column (index 8)
 
 
     order_cost = 0  # Initialize the order cost
@@ -278,6 +284,7 @@ def calculate_order_cost(pricing_dict, row):
         except ValueError:
             print(f"Invalid treat quantity for {treat_type}. Skipping treat cost calculation.")
 
+    print(f"your order costs: {order_cost}.")
     return order_cost
 
 
@@ -401,6 +408,7 @@ def main():
     update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity)
     # Append to customer-info sheet
     append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
+    append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
 
     
 

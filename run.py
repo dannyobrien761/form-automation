@@ -1,7 +1,8 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from pprint import pprint
-
+import re
+from datetime import datetime
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -21,6 +22,93 @@ order_sheet = SHEET.worksheet('order-info')
 order_data = order_sheet.get_all_values()
 # Access the worksheet containing customer-info
 customer_email_sheet = SHEET.worksheet('customer-info')
+
+
+
+
+def get_order_data():
+    """
+    Get order data (name and email) from the user.
+    The data should be a valid name and a valid email address.
+    """
+    while True:
+        print("Please enter order data from the last market.")
+        print("Data should be name and email, separated by a comma.")
+        print("Example: John Doe,johndoe@example.com\n")
+
+        data_str = input("Enter your data here: ")
+        order_data = data_str.split(",")
+
+        if validate_order_data(order_data):
+            print("Order data is valid!")
+            break
+
+    return order_data
+
+def validate_order_data(order_data):
+    """
+    Validate the order data. The name should not be empty, and the email
+    must be in a valid format (e.g., someone@example.com).
+    """
+    if len(order_data) != 2:
+        print(f"Invalid input. You must provide exactly 2 values (name and email).")
+        return False
+
+    name = order_data[0].strip()
+    email = order_data[1].strip()
+
+    # Validate name (non-empty)
+    if not name:
+        print("Invalid data: Name cannot be empty.")
+        return False
+
+    # Validate email format using a regular expression
+    email_regex = r"[^@]+@[^@]+\.[^@]+"
+    if not re.match(email_regex, email):
+        print("Invalid data: Email is not in a valid format (e.g., someone@example.com).")
+        return False
+
+    return True
+
+
+def get_cake_date():
+    """
+    Get a valid cake order date from the user.
+    The date must be in the format 'YYYY-MM-DD'.
+    """
+    while True:
+        print("Please enter the date you want the cake by.")
+        print("Data should be in the format: year-month-day.")
+        print("Example: 2024-09-25\n")
+
+        date_str = input("Enter the date here: ")
+
+        if validate_cake_date(date_str):
+            print("Date is valid!")
+            break
+
+    return date_str
+
+
+def validate_cake_date(date_str):
+    """
+    Validate that the input is in 'YYYY-MM-DD' format and is a valid date.
+    """
+    try:
+        # Try to parse the date string into a datetime object
+        datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        print("Invalid data: Date must be in the format 'YYYY-MM-DD' and a valid date.")
+        return False
+
+    return True
+
+
+# Example Usage:
+order_data = get_order_data()  # Get and validate name and email
+cake_date = get_cake_date()    # Get and validate date
+
+
 
 def is_valid_row(row):
     """

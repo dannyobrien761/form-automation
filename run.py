@@ -178,6 +178,29 @@ def validate_cake_quantity(cake_quantity):
 
 
 
+def update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity):
+    """
+    Update the 'order-info' worksheet by adding a new row with the provided data.
+    """
+    print("Updating order-info worksheet...\n")
+    
+    # Access the 'order-info' worksheet
+    order_worksheet = SHEET.worksheet('order-info')
+    
+    # Create a new row to append, based on the provided input
+    # Assume customer_data is a list with [name, email]
+    new_order_row = [
+        customer_data[0],  # name
+        customer_data[1],  # email
+        cake_date,         # date of cake order
+        cake_type,         # type of cake
+        cake_quantity      # quantity of cakes
+    ]
+    
+    # Append the new row to the worksheet
+    order_worksheet.append_row(new_order_row)
+    
+    print("Order-info worksheet updated successfully.\n")
 
 
 # section to handle updating customer-info sheet from order-infor page
@@ -368,12 +391,14 @@ def main():
         'delivery_fee': 10  # Delivery fee
     }
 
-    # Example Usage:
+    # Example Usage
     customer_data = get_customer_data()  # Get and validate name and email
-    cake_date = get_cake_date()    # Get and validate date
-    # Example Usage:
-    cake_type = get_cake_type()  # Get and validate cake type
+    cake_date = get_cake_date()       # Get and validate date
+    cake_type = get_cake_type()       # Get and validate cake type
     cake_quantity = get_cake_quantity()  # Get and validate cake quantity
+
+    # Update the 'order-info' worksheet
+    update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity)
     # Append to customer-info sheet
     append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
 

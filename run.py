@@ -1,6 +1,5 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from pprint import pprint
 import re
 from datetime import datetime
 
@@ -34,9 +33,9 @@ def get_customer_data():
     while True:
         print("Please enter order data from the last market.")
         print("Data should be name and email, separated by a comma.")
-        print("Example: John Doe,johndoe@example.com\n")
+        print("Example: John Doe,johndoe@example.com")
 
-        data_str = input("Enter your data here: ")
+        data_str = input("Enter your data here:\n")
         customer_data = data_str.split(",")
 
         if validate_order_data(customer_data):
@@ -81,7 +80,7 @@ def get_cake_date():
         print("Data should be in the format: year-month-day.")
         print("Example: 2024-09-25\n")
 
-        date_str = input("Enter the date here: ")
+        date_str = input("Enter the date here:\n")
 
         if validate_cake_date(date_str):
             print("Date is valid!")
@@ -124,15 +123,15 @@ def get_cake_type():
     while True:
         print("Please choose the cake type from the following options:")
         print("1. Chocolate Biscuit")
-        print("2. Vanilla Cake\n")
+        print("2. Vanilla Sponge\n")
 
-        cake_type_choice = input("Enter your choice (1 or 2): ")
+        cake_type_choice = input("Enter your choice (1 or 2):\n")
 
         if cake_type_choice in cake_options:
             print(f"Cake type '{cake_options[cake_type_choice]}' selected!")
             return cake_options[cake_type_choice]
         else:
-            print("Invalid cake type. Please enter '1' for Chocolate Biscuit or '2' for Vanilla Cake.")
+            print("Invalid cake type. Please enter '1' for Chocolate Biscuit or '2' for Vanilla Sponge.")
 
 
 
@@ -157,7 +156,7 @@ def get_cake_quantity():
     """
     while True:
         print("Please enter the quantity of cakes:")
-        cake_quantity = input("Enter the cake quantity (must be a number greater than 0): ")
+        cake_quantity = input("Enter the cake quantity (must be a number greater than 0):\n")
 
         if validate_cake_quantity(cake_quantity):
             print("Cake quantity is valid!")
@@ -392,9 +391,7 @@ def main():
     # Define pricing dictionary
     pricing_dict = {
         'chocolate biscuit': 25,
-        'custom': 10,
-        'vanilla cake': 20,
-        'brownie treat': 5,
+        'vanilla sponge': 20,
         'delivery_fee': 10  # Delivery fee
     }
 

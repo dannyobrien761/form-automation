@@ -1,7 +1,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -31,8 +31,8 @@ def get_customer_data():
     The data should be a valid name and a valid email address.
     """
     while True:
-        print("Please enter order data from the last market.")
-        print("Data should be name and email, separated by a comma.")
+        print("if you would like to order a cake please fill out the below.")
+        print("what is your name and email ? please seperate them  by a comma.")
         print("Example: John Doe,johndoe@example.com")
 
         data_str = input("Enter your data here:\n")
@@ -76,7 +76,7 @@ def get_cake_date():
     The date must be in the format 'YYYY-MM-DD'.
     """
     while True:
-        print("Please enter the date you want the cake by.")
+        print("Please enter the date you want the cake by, but you must give us two days notice to get your cake ready.")
         print("Data should be in the format: year-month-day.")
         print("Example: 2024-09-25\n")
 
@@ -91,17 +91,25 @@ def get_cake_date():
 
 def validate_cake_date(date_str):
     """
-    Validate that the input is in 'YYYY-MM-DD' format and is a valid date.
+    Validate that the input is in 'YYYY-MM-DD' format, is a valid date,
+    and the date is at least two days in the future.
     """
     try:
         # Try to parse the date string into a datetime object
-        datetime.strptime(date_str, "%Y-%m-%d")
+        order_date = datetime.strptime(date_str, "%Y-%m-%d")
+        
+        # Get the current date
+        current_date = datetime.now()
+
+        # Check if the order date is at least two days in the future
+        if order_date < current_date + timedelta(days=2):
+            print("Invalid date: The order must be at least two days in the future.")
+            return False
     except ValueError:
         print("Invalid data: Date must be in the format 'YYYY-MM-DD' and a valid date.")
         return False
 
     return True
-
 
 
 
@@ -123,7 +131,7 @@ def get_cake_type():
     while True:
         print("Please choose the cake type from the following options:")
         print("1. Chocolate Biscuit")
-        print("2. Vanilla Sponge\n")
+        print("2. Vanilla cake\n")
 
         cake_type_choice = input("Enter your choice (1 or 2):\n")
 
@@ -204,13 +212,17 @@ def update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity):
     
     # Append the new row to the worksheet
     order_worksheet.append_row(new_order_row)
-    
+
     print("Order-info worksheet updated successfully.\n")
+    return new_order_row  # Return the row to use in other functions
+    
+    
+    
 
-
+"""
 # section to handle updating customer-info sheet from order-infor page
 def is_valid_row(row):
-    """
+    
     Checks if the row contains meaningful data and is not just an empty row.
     
     Parameters:
@@ -218,15 +230,17 @@ def is_valid_row(row):
     
     Returns:
         bool: True if the row contains valid data, False otherwise.
-    """
+    
     # Check if key fields (e.g., 'cake-type', 'cake-quantity') are non-empty
     cake_type = row[4].strip()  # Assuming 'cake-type' is in the 5th column (index 4)
     cake_quantity = row[5].strip()  # Assuming 'cake quantity' is in the 6th column (index 5)
     
     return bool(cake_type and cake_quantity) 
 
+"""
+"""
 def get_latest_valid_row(sheet):
-    """
+   
     Gets the latest valid row from the 'order-info' sheet that contains valid data.
     
     Parameters:
@@ -234,7 +248,7 @@ def get_latest_valid_row(sheet):
     
     Returns:
         list: The latest valid row with data, or None if no valid row is found.
-    """
+   
     # Get all rows from the sheet
     all_rows = sheet.get_all_values()
 
@@ -245,6 +259,7 @@ def get_latest_valid_row(sheet):
     
     # If no valid row is found, return None
     return None
+ """
 
 def calculate_order_cost(pricing_dict, row):
     """
@@ -261,8 +276,8 @@ def calculate_order_cost(pricing_dict, row):
     """
     cake_type = row[3]  # Assuming 'cake-type' is in the 5th column (index 4)
     cake_quantity = row[4]  # Assuming 'cake quantity' is in the 6th column (index 5)
-    treat_type = row[6]  # Assuming 'treat-type' is in the 8th column (index 7)
-    treat_quantity = row[7]  # Assuming 'treat-quantity' is in the 9th column (index 8)
+    #treat_type = row[6]  # Assuming 'treat-type' is in the 8th column (index 7)
+    #treat_quantity = row[7]  # Assuming 'treat-quantity' is in the 9th column (index 8)
 
 
     order_cost = 0  # Initialize the order cost
@@ -276,12 +291,12 @@ def calculate_order_cost(pricing_dict, row):
             print(f"Invalid cake quantity for {cake_type}. Skipping cake cost calculation.")
 
     # Check if 'treat-type' exists in the pricing dictionary and 'treat-quantity' is valid
-    if treat_type in pricing_dict:
-        try:
-            treat_quantity = int(treat_quantity)  # Convert to integer if valid
-            order_cost += pricing_dict[treat_type] * treat_quantity
-        except ValueError:
-            print(f"Invalid treat quantity for {treat_type}. Skipping treat cost calculation.")
+    #if treat_type in pricing_dict:
+        #try:
+           # treat_quantity = int(treat_quantity)  # Convert to integer if valid
+            #order_cost += pricing_dict[treat_type] * treat_quantity
+        #except ValueError:
+            #print(f"Invalid treat quantity for {treat_type}. Skipping treat cost calculation.")
 
     print(f"your order costs: {order_cost}.")
     return order_cost
@@ -289,16 +304,16 @@ def calculate_order_cost(pricing_dict, row):
 
 
 
-
+"""
 def append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
-    """
+    
     Appends the latest valid row to the 'customer-info' sheet if it's not a duplicate.
     
     Parameters:
         order_sheet (gspread.Worksheet): The worksheet object for 'order-info'.
         customer_info_sheet (gspread.Worksheet): The worksheet object for 'customer-info'.
         pricing_dict (dict): A dictionary with pricing information.
-    """
+    
     # Get the latest valid row from the 'order-info' sheet
     latest_row = get_latest_valid_row(order_sheet)
     
@@ -331,7 +346,7 @@ def append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
 
     latest_order_cost = calculate_order_cost(pricing_dict, latest_row)
     print(f"The total order cost is: {latest_order_cost}")
-
+"""
 
 def append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
     """
@@ -375,7 +390,25 @@ def append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricin
 
             print(f"Added new entry: {row[0]}, {email}, {order_date}, {order_cost}")
         else:
-            print(f"Entry with email {email} and order date {order_date} already exists.")
+            pass
+
+
+def process_new_order(customer_data, cake_date, cake_type, cake_quantity, treat_type=None, treat_quantity=0, pricing_dict=None):
+    """
+    Update order-info sheet with new customer data, calculate the order cost,
+    and append the new entry (including cost) to the customer-info sheet.
+    """
+    # Update the order-info sheet
+    new_order_row = update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity)
+    
+    # Calculate the order cost using the new_order_row
+    order_cost = calculate_order_cost(pricing_dict, new_order_row)
+    print(f"Total order cost calculated: {order_cost} EUR")
+
+    # Append to customer-info sheet
+    append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
+
+    print("Order processed successfully.")
 
 
 # Example usage
@@ -391,7 +424,7 @@ def main():
     # Define pricing dictionary
     pricing_dict = {
         'chocolate biscuit': 25,
-        'vanilla sponge': 20,
+        'vanilla cake': 20,
         'delivery_fee': 10  # Delivery fee
     }
 
@@ -400,12 +433,13 @@ def main():
     cake_date = get_cake_date()       # Get and validate date
     cake_type = get_cake_type()       # Get and validate cake type
     cake_quantity = get_cake_quantity()  # Get and validate cake quantity
-
+    process_new_order(customer_data, cake_date, cake_type, cake_quantity, pricing_dict)
     # Update the 'order-info' worksheet
-    update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity)
+    #new_order_row = update_order_worksheet(customer_data, cake_date, cake_type, cake_quantity)
+    #order_cost = calculate_order_cost(pricing_dict, new_order_row)
     # Append to customer-info sheet
-    append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
-    append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
+    #append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
+    #append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict)
 
     
 

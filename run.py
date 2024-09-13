@@ -35,7 +35,7 @@ def get_customer_data():
         print("what is your name and email ? please seperate them  by a comma.")
         print("Example: John Doe,johndoe@example.com")
 
-        data_str = input("Enter your data here:\n")
+        data_str = input("Enter your name and email here:\n")
         customer_data = data_str.split(",")
 
         if validate_order_data(customer_data):
@@ -146,12 +146,12 @@ def get_cake_type():
 def validate_cake_type(cake_type):
     """
     Validate the cake type input.
-    It must be '1' for 'Chocolate Biscuit' or '2' for 'Vanilla Sponge'.
+    It must be '1' for 'Chocolate Biscuit' or '2' for 'Vanilla cake'.
     """
-    valid_options = {"1": "Chocolate Biscuit", "2": "Vanilla Sponge"}
+    valid_options = {"1": "Chocolate Biscuit", "2": "Vanilla cake"}
 
     if cake_type not in valid_options:
-        print("Invalid cake type. Please enter '1' for Chocolate Biscuit or '2' for Vanilla Sponge.")
+        print("Invalid cake type. Please enter '1' for Chocolate Biscuit or '2' for Vanilla cake.")
         return False
 
     return True
@@ -275,9 +275,7 @@ def calculate_order_cost(pricing_dict, row):
     """
     cake_type = row[3]  # Assuming 'cake-type' is in the 5th column (index 4)
     cake_quantity = row[4]  # Assuming 'cake quantity' is in the 6th column (index 5)
-    #treat_type = row[6]  # Assuming 'treat-type' is in the 8th column (index 7)
-    #treat_quantity = row[7]  # Assuming 'treat-quantity' is in the 9th column (index 8)
-
+    
 
     order_cost = 0  # Initialize the order cost
 
@@ -289,15 +287,6 @@ def calculate_order_cost(pricing_dict, row):
         except ValueError:
             print(f"Invalid cake quantity for {cake_type}. Skipping cake cost calculation.")
 
-    # Check if 'treat-type' exists in the pricing dictionary and 'treat-quantity' is valid
-    #if treat_type in pricing_dict:
-        #try:
-           # treat_quantity = int(treat_quantity)  # Convert to integer if valid
-            #order_cost += pricing_dict[treat_type] * treat_quantity
-        #except ValueError:
-            #print(f"Invalid treat quantity for {treat_type}. Skipping treat cost calculation.")
-
-    #print(f"your order costs: {order_cost}.")
     return order_cost
 
 
@@ -341,10 +330,10 @@ def append_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
 
     # Append the latest_row to the 'customer-info' sheet
     customer_info_sheet.append_row([name, email, order_date, order_cost])
-    print(f"Added new entry to customer-info: name: {name}, email: {email}, order-date:{order_date}, {order_cost}Eur")
+    print(f"Added new entry to customer-info: name: {name}, email: {email},/n order-date:{order_date}, {order_cost}Eur")
 
     latest_order_cost = calculate_order_cost(pricing_dict, latest_row)
-    print(f"The total order cost is: {latest_order_cost}")
+    print(f"The total order cost is: {latest_order_cost}Eur")
 
 
 def append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricing_dict):
@@ -377,17 +366,12 @@ def append_new_entries_to_customer_info(order_sheet, customer_info_sheet, pricin
         if (email, order_date) not in customer_info_combinations:
             # If not a duplicate, calculate the order cost and append the new entry
             order_cost = calculate_order_cost(pricing_dict, row)
-    
-            
             # Append order_cost to the row
             row.append(order_cost)
-
             # Append name, email, order_date, and order_cost to customer-info
             customer_info_sheet.append_row([row[0], email, order_date, order_cost])
-            
             # Update the set with the new combination
             customer_info_combinations.add((email, order_date))
-
             print(f"Added new entry: {row[0]}, {email}, {order_date}, {order_cost} EUR")
         else:
             pass

@@ -1,32 +1,55 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+# Form Automation
 
-Welcome,
+#### Introduction:
+The **Form Automation** project is a Python-based application designed to streamline data collection and management for cake orders. It integrates with Google Sheets, automatically updating records for both orders and customer information, and calculates the total cost of each order. The project’s primary goal is to simplify the process of gathering customer data, managing orders, and calculating costs efficiently, reducing manual errors and time spent on administrative tasks.
 
-This is the Code Institute student template for deploying your third portfolio project, the Python command-line project. The last update to this file was: **May 14, 2024**
+#### How to Use:
+1. **User Input:** Customers input their name, email, cake type, desired order date, and quantity.
+2. **Order Processing:** The system validates the inputs and updates the “order-info” sheet in Google Sheets with the new order.
+3. **Cost Calculation:** The program calculates the total cost of the order based on the cake type and quantity.
+4. **Customer Data Storage:** The system checks for duplicate records in the “customer-info” sheet and appends the new order details, including the order cost.
+5. **Automated Email:** Emails can be sent to customers using their recorded information for notifications or follow-ups.
 
-## Reminders
+#### Features:
+- **Data Validation:** Ensures inputs are correct, such as valid email formats and dates that provide sufficient preparation time.
+- **Cost Calculation:** Automatically computes the cost of orders based on predefined pricing for cake types.
+- **Duplicate Prevention:** Checks for duplicate customer entries to avoid multiple records for the same order.
+- **Automated Data Updates:** Integrates seamlessly with Google Sheets, updating customer and order data in real-time.
+- **Email Notification (Upcoming):** Plans to integrate an SMTP-based system to send automatic email confirmations to customers upon successful order submission.
 
-- Your code must be placed in the `run.py` file
-- Your dependencies must be placed in the `requirements.txt` file
-- Do not edit any of the other files or your code may not deploy properly
+#### Future Features:
+- **Order Confirmation Emails:** Automatic emails sent to customers upon order submission.
+- **Enhanced Data Validation:** More detailed checks on order types and special requests.
+- **Order History Tracking:** Allow customers to track the status of their order and view past orders.
+- **Analytics Dashboard:** Real-time reports on sales, popular cake types, and customer data trends.
 
-## Creating the Heroku app
+#### Data Model:
+- **order-info Sheet:**
+  - Customer name, email, cake type, quantity, and order date are stored.
+  - Each row represents one order.
+- **customer-info Sheet:**
+  - Customer email, name, and order costs are tracked.
+  - Prevents duplication of customer entries.
 
-When you create the app, you will need to add two buildpacks from the _Settings_ tab. The ordering is as follows:
+#### Testing:
+The project has been tested through:
+- **PEP8 Linter:** Code has been validated to ensure it follows Python’s coding standards.
+- **Invalid Inputs:** Handled invalid email formats, incorrect dates, and negative or zero quantities.
+- **Local and Heroku Terminals:** Successfully ran tests both locally and in the Heroku terminal, ensuring smooth functionality across environments.
 
-1. `heroku/python`
-2. `heroku/nodejs`
+#### Bugs:
+- **Initial `NoneType` Error in Cost Calculation:** Encountered when the cake type was not properly assigned in the order row, leading to a failure in calculating the cost.
+- **Duplicate Customer Entries:** Initially, the system allowed duplicates in the “customer-info” sheet.
+- **Unvalidated Cake Quantity:** The program sometimes allowed non-numeric values for cake quantity.
 
-You must then create a _Config Var_ called `PORT`. Set this to `8000`
+#### Solved Bugs:
+- **Fixed `NoneType` Error:** Resolved by correctly passing the cake type from the user input to the order worksheet.
+- **Duplicate Prevention:** Implemented a check in the “customer-info” sheet to avoid appending the same customer multiple times.
+- **Quantity Validation:** Added validation logic to ensure the cake quantity input is a valid positive integer.
 
-If you have credentials, such as in the Love Sandwiches project, you must create another _Config Var_ called `CREDS` and paste the JSON into the value field.
-
-Connect your GitHub repository and deploy as normal.
-
-## Constraints
-
-The deployment terminal is set to 80 columns by 24 rows. That means that each line of text needs to be 80 characters or less otherwise it will be wrapped onto a second line.
-
----
-
-Happy coding!
+#### Remaining Bugs:
+- **Email Sending Integration:** The email notification system still requires proper integration and testing to function as expected.
+  
+#### Credits:
+- **Google Sheets API Documentation:** Provided foundational information on interacting with Google Sheets using Python.
+- **code institute** love sandwiches project by the code institure found here: https://github.com/Code-Institute-Solutions/love-sandwiches-p5-sourcecode

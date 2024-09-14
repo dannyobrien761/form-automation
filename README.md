@@ -58,3 +58,13 @@ The project has been tested through:
 #### Credits:
 - **Google Sheets API Documentation:** Provided foundational information on interacting with Google Sheets using Python.
 - **code institute** love sandwiches project by the code institure found here: https://github.com/Code-Institute-Solutions/love-sandwiches-p5-sourcecode
+- **stack overflow** I took the validate email- expression in the run.py validate_order definition below from this thread : https://stackoverflow.com/questions/8022530/how-to-check-for-valid-email-address
+
+# Validate email format using a regular expression
+    #cred-stack overflow thread link in readme
+    email_regex = r"[^@]+@[^@]+\.[^@]+"
+    if not re.match(email_regex, email):
+        print("Error: Email isn't in valid format (e.g., some@example.com).")
+        return False
+
+    return True

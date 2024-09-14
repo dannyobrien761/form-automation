@@ -62,6 +62,7 @@ def validate_order_data(customer_data):
         return False
 
     # Validate email format using a regular expression
+    #cred-stack overflow thread link in readme
     email_regex = r"[^@]+@[^@]+\.[^@]+"
     if not re.match(email_regex, email):
         print("Error: Email isn't in valid format (e.g., some@example.com).")

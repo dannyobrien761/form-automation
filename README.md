@@ -3,9 +3,13 @@
 #### Introduction:
 The **Form Automation** project is a Python-based application designed to streamline data collection and management for cake orders. It integrates with Google Sheets, automatically updating records for both orders and customer information, and calculates the total cost of each order. The project’s primary goal is to simplify the process of gathering customer data, managing orders, and calculating costs efficiently, reducing manual errors and time spent on administrative tasks.
 
+[live version of project](https://form-automation-369956b5546f.herokuapp.com/)
+
+![am-i-responsive pic of heroku running application](/assets/images/am-i-responsive.PNG)
 #### How to Use:
 1. **User Input:** Customers input their name, email, cake type, desired order date, and quantity.
 2. **Order Processing:** The system validates the inputs and updates the “order-info” sheet in Google Sheets with the new order.
+![order-info spreadsheet pic](/assets/images/spreadsheet-snip.PNG)
 3. **Cost Calculation:** The program calculates the total cost of the order based on the cake type and quantity.
 4. **Customer Data Storage:** The system checks for duplicate records in the “customer-info” sheet and appends the new order details, including the order cost.
 5. **Automated Email:** Emails can be sent to customers using their recorded information for notifications or follow-ups.
@@ -14,8 +18,9 @@ The **Form Automation** project is a Python-based application designed to stream
 - **Data Validation:** Ensures inputs are correct, such as valid email formats and dates that provide sufficient preparation time.
 - **Cost Calculation:** Automatically computes the cost of orders based on predefined pricing for cake types.
 - **Duplicate Prevention:** Checks for duplicate customer entries to avoid multiple records for the same order.
-- **Automated Data Updates:** Integrates seamlessly with Google Sheets, updating customer and order data in real-time.
-- **Email Notification (Upcoming):** Plans to integrate an SMTP-based system to send automatic email confirmations to customers upon successful order submission.
+- **Automated Data Updates:** Integrates seamlessly with Google Sheets, updating customer and order data in real-time. Here is a pic of how the customer-info spreadsheet is updated:
+
+![pic of google spreadsheet app is updating](/assets/images/customer-info-snip.PNG)
 
 #### Future Features:
 - **Order Confirmation Emails:** Automatic emails sent to customers upon order submission.
